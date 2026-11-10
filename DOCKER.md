@@ -100,8 +100,8 @@ docker login nvcr.io
 ## 5. Download this repo
 
 ```bash
-git clone <REPO_URL> isaac_sim_synthetic_lidar_data
-cd isaac_sim_synthetic_lidar_data
+git clone <REPO_URL> brt_isaac_sim
+cd brt_isaac_sim
 ```
 
 Replace `<REPO_URL>` with this repo's clone URL. All following commands are run from this folder.
@@ -111,8 +111,8 @@ Replace `<REPO_URL>` with this repo's clone URL. All following commands are run 
 Isaac Sim keeps shader caches, logs and config outside the container so they survive restarts. The container runs as uid 1234, so the folders must be writable by everyone:
 
 ```bash
-mkdir -p ~/docker/isaac-sim/{cache/main,cache/computecache,logs,config,data,pkg}
-chmod -R a+rwX ~/docker/isaac-sim
+sudo mkdir -p ~/docker/isaac-sim/{cache/main,cache/kit,cache/computecache,logs,config,data,pkg}
+sudo chmod -R a+rwX ~/docker/isaac-sim
 ```
 
 If you skip this, Docker creates the folders as root and Isaac Sim will fail with permission errors.
@@ -144,7 +144,7 @@ You get a zsh shell in `/workspace`, which is this repo mounted into the contain
 Inside the container shell:
 
 ```bash
-/isaac-sim/python.sh capture_one_scan.py \
+/isaac-sim/python.sh scripts/capture_one_scan.py \
     --usd Simple_Room/OS1_LiDAR_in_Simple_Room.usd --sensor /Root/OS1/sensor \
     --out scan_0000.pcd --headless
 ```
@@ -152,10 +152,26 @@ Inside the container shell:
 Or without opening a shell, from the host:
 
 ```bash
-docker compose run --rm sim /isaac-sim/python.sh capture_one_scan.py --headless ...
+docker compose run --rm sim /isaac-sim/python.sh scripts/capture_one_scan.py --headless ...
 ```
 
 The first Isaac Sim start is slow (shader compilation, several minutes). Later runs reuse the cache from step 6.
+
+## Running the Isaac Sim UI (optional)
+
+Needs an X11 desktop session. On the host, once per login, allow local programs to open windows:
+
+```bash
+xhost +local:
+```
+
+Then start the UI:
+
+```bash
+docker compose run --rm sim-gui
+```
+
+The window opens on your desktop. The first start compiles shaders if the cache is empty.
 
 ## What gets mounted
 
@@ -163,7 +179,7 @@ The first Isaac Sim start is slow (shader compilation, several minutes). Later r
 |------|-----------|---------|
 | `.` (repo) | `/workspace` | Your scripts and stages |
 | `./container_config/.zshrc` | `/isaac-sim/.zshrc` (read-only) | Shell config; edit on the host, no rebuild |
-| `~/docker/isaac-sim/*` | `/isaac-sim/.cache`, `.nv`, `.nvidia-omniverse`, `.local/share/ov` | Persistent caches, logs, config |
+| `~/docker/isaac-sim/*` | `/isaac-sim/.cache`, `/isaac-sim/kit/cache` (shader cache), `.nv`, `.nvidia-omniverse`, `.local/share/ov` | Persistent caches, logs, config |
 
 ## Customising
 
@@ -181,4 +197,5 @@ The first Isaac Sim start is slow (shader compilation, several minutes). Later r
 | Permission errors on cache or log folders | Step 6: re-run the `chmod -R a+rwX ~/docker/isaac-sim` command |
 | Shell is bash instead of zsh | `command:` in `docker-compose.yml` must be `zsh` (it overrides the Dockerfile `CMD`) |
 | `Error response from daemon: ... unauthorized` on login | Username must be `$oauthtoken`, not your email; check the key's scope (step 4) |
+| `PermissionError` writing into `/workspace` | The container writes to the repo via your host group. If your group id is not 1000, run `HOST_GID=$(id -g) docker compose run --rm sim` |
 | Driver too old | Step 1: install a driver of 570.169 or newer |

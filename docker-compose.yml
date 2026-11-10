@@ -6,6 +6,9 @@ services:
         ISAAC_SIM_IMAGE: ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:6.0.1}
     image: isaac-sim-stages:dev
     working_dir: /workspace
+    # The container user (uid 1234) writes to the repo through this host group (default: first user's group)
+    group_add:
+      - "${HOST_GID:-1000}"
     network_mode: host
     stdin_open: true
     tty: true
@@ -28,7 +31,8 @@ services:
       - ./container_config/.zshrc:/isaac-sim/.zshrc:ro
 
       # Persistent Isaac Sim caches/logs (reuses your existing ~/docker/isaac-sim dirs)
-      - ${HOME}/docker/isaac-sim/cache/main:/isaac-sim/.cache/ov:rw
+      - ${HOME}/docker/isaac-sim/cache/main:/isaac-sim/.cache:rw
+      - ${HOME}/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw
       - ${HOME}/docker/isaac-sim/cache/computecache:/isaac-sim/.nv/ComputeCache:rw
       - ${HOME}/docker/isaac-sim/logs:/isaac-sim/.nvidia-omniverse/logs:rw
       - ${HOME}/docker/isaac-sim/config:/isaac-sim/.nvidia-omniverse/config:rw
@@ -37,3 +41,19 @@ services:
     # Default: interactive shell. Run a script with, e.g.:
     #   docker compose run --rm sim /isaac-sim/python.sh scripts/capture_one_scan.py --headless ...
     command: zsh
+
+  # Isaac Sim with the full UI on your desktop (X11).
+  # One-time per login, on the host:  xhost +local:
+  #   docker compose run --rm sim-gui
+  sim-gui:
+    extends:
+      service: sim
+    environment:
+      - ACCEPT_EULA=Y
+      - PRIVACY_CONSENT=Y
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+      - DISPLAY=${DISPLAY:-:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    command: /isaac-sim/isaac-sim.sh
