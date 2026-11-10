@@ -71,20 +71,37 @@ This should print the same GPU table as step 1.
 
 The base image is hosted on NVIDIA NGC and needs a free account.
 
-1. Create an account at https://ngc.nvidia.com and generate an API key (Setup → API Keys → Generate Personal Key, with the "NGC Catalog" service enabled).
-2. Log in to the registry:
+1. Create an account at https://ngc.nvidia.com and open Setup → API Keys → **Generate Service Key** (a Personal Key also works).
+2. Fill in the form exactly like this, then click the **+** next to Entity Value so the entity is added, and click **Next Step**:
+
+   ![NGC service key settings](docs/ngc-service-key.png)
+
+   | Field | Value |
+   |-------|-------|
+   | Name | any name, e.g. `isaac_sim` |
+   | Expiration | 12 months (or as you like) |
+   | Service | NGC Catalog |
+   | Scope | Get Container |
+   | Entity Type | All Containers |
+   | Entity Value | `nvidia/*` |
+
+3. **Copy the key right away.** It is only shown once.
+4. Log in to the registry:
 
 ```bash
 docker login nvcr.io
 ```
 
-   Username: `$oauthtoken` (type it literally). Password: your API key.
+   - Username: `$oauthtoken` (type it literally, including the `$`; do **not** use your email)
+   - Password: the key you copied (nothing is shown while you paste, that is normal)
+
+   You should see `Login Succeeded`. The warning about unencrypted credentials is harmless on a personal machine.
 
 ## 5. Download this repo
 
 ```bash
-git clone <REPO_URL> isaac_sim_stages
-cd isaac_sim_stages
+git clone <REPO_URL> isaac_sim_synthetic_lidar_data
+cd isaac_sim_synthetic_lidar_data
 ```
 
 Replace `<REPO_URL>` with this repo's clone URL. All following commands are run from this folder.
@@ -127,7 +144,7 @@ You get a zsh shell in `/workspace`, which is this repo mounted into the contain
 Inside the container shell:
 
 ```bash
-/isaac-sim/python.sh scripts/capture_one_scan.py \
+/isaac-sim/python.sh capture_one_scan.py \
     --usd Simple_Room/OS1_LiDAR_in_Simple_Room.usd --sensor /Root/OS1/sensor \
     --out scan_0000.pcd --headless
 ```
@@ -135,7 +152,7 @@ Inside the container shell:
 Or without opening a shell, from the host:
 
 ```bash
-docker compose run --rm sim /isaac-sim/python.sh scripts/capture_one_scan.py --headless ...
+docker compose run --rm sim /isaac-sim/python.sh capture_one_scan.py --headless ...
 ```
 
 The first Isaac Sim start is slow (shader compilation, several minutes). Later runs reuse the cache from step 6.
@@ -163,4 +180,5 @@ The first Isaac Sim start is slow (shader compilation, several minutes). Later r
 | `could not select device driver "nvidia"` | Step 3: install and configure the NVIDIA Container Toolkit, restart Docker |
 | Permission errors on cache or log folders | Step 6: re-run the `chmod -R a+rwX ~/docker/isaac-sim` command |
 | Shell is bash instead of zsh | `command:` in `docker-compose.yml` must be `zsh` (it overrides the Dockerfile `CMD`) |
+| `Error response from daemon: ... unauthorized` on login | Username must be `$oauthtoken`, not your email; check the key's scope (step 4) |
 | Driver too old | Step 1: install a driver of 570.169 or newer |
