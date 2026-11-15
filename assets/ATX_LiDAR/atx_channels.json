@@ -1,0 +1,930 @@
+[
+ {
+  "channel": 1,
+  "az_even": 0.82,
+  "az_odd": 0.82,
+  "elev": 5.92,
+  "min_m": 0.5,
+  "max_m": 90.0
+ },
+ {
+  "channel": 2,
+  "az_even": 0.82,
+  "az_odd": 0.82,
+  "elev": 5.52,
+  "min_m": 0.5,
+  "max_m": 90.0
+ },
+ {
+  "channel": 3,
+  "az_even": 0.82,
+  "az_odd": 0.82,
+  "elev": 5.12,
+  "min_m": 0.5,
+  "max_m": 90.0
+ },
+ {
+  "channel": 4,
+  "az_even": 0.82,
+  "az_odd": 0.82,
+  "elev": 4.72,
+  "min_m": 0.5,
+  "max_m": 120.0
+ },
+ {
+  "channel": 5,
+  "az_even": -0.35,
+  "az_odd": -0.35,
+  "elev": 4.52,
+  "min_m": 0.5,
+  "max_m": 120.0
+ },
+ {
+  "channel": 6,
+  "az_even": -0.7,
+  "az_odd": -0.7,
+  "elev": 4.32,
+  "min_m": 0.5,
+  "max_m": 120.0
+ },
+ {
+  "channel": 7,
+  "az_even": -1.04,
+  "az_odd": -1.04,
+  "elev": 4.12,
+  "min_m": 0.5,
+  "max_m": 120.0
+ },
+ {
+  "channel": 8,
+  "az_even": -1.39,
+  "az_odd": -1.39,
+  "elev": 3.91,
+  "min_m": 0.5,
+  "max_m": 150.0
+ },
+ {
+  "channel": 9,
+  "az_even": -2.95,
+  "az_odd": -2.95,
+  "elev": 3.71,
+  "min_m": 0.5,
+  "max_m": 150.0
+ },
+ {
+  "channel": 10,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": 3.51,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 11,
+  "az_even": -2.95,
+  "az_odd": -2.95,
+  "elev": 3.31,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 12,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": 3.11,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 65,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": 3.01,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 13,
+  "az_even": -2.94,
+  "az_odd": -2.94,
+  "elev": 2.9,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 66,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": 2.8,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 14,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": 2.71,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 67,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": 2.6,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 15,
+  "az_even": -2.94,
+  "az_odd": -2.94,
+  "elev": 2.5,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 68,
+  "az_even": -2.94,
+  "az_odd": 2.94,
+  "elev": 2.4,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 16,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": 2.3,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 69,
+  "az_even": -2.94,
+  "az_odd": 2.94,
+  "elev": 2.2,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 17,
+  "az_even": 2.94,
+  "az_odd": 2.94,
+  "elev": 2.1,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 70,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": 2.0,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 18,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": 1.9,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 71,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": 1.8,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 19,
+  "az_even": 2.94,
+  "az_odd": 2.94,
+  "elev": 1.7,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 72,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": 1.6,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 20,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": 1.5,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 73,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": 1.4,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 21,
+  "az_even": 2.94,
+  "az_odd": 2.94,
+  "elev": 1.3,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 74,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": 1.2,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 22,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": 1.1,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 75,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": 1.0,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 23,
+  "az_even": 2.94,
+  "az_odd": 2.94,
+  "elev": 0.9,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 76,
+  "az_even": -2.94,
+  "az_odd": 2.94,
+  "elev": 0.8,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 24,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": 0.7,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 77,
+  "az_even": -2.94,
+  "az_odd": 2.94,
+  "elev": 0.6,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 25,
+  "az_even": -2.94,
+  "az_odd": -2.94,
+  "elev": 0.5,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 78,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": 0.4,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 26,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": 0.3,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 79,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": 0.2,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 27,
+  "az_even": -2.94,
+  "az_odd": -2.94,
+  "elev": 0.1,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 80,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": 0.0,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 28,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -0.1,
+  "min_m": 0.5,
+  "max_m": 198.0
+ },
+ {
+  "channel": 81,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": -0.2,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 29,
+  "az_even": -2.94,
+  "az_odd": -2.94,
+  "elev": -0.3,
+  "min_m": 0.5,
+  "max_m": 150.0
+ },
+ {
+  "channel": 82,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": -0.4,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 30,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -0.5,
+  "min_m": 0.5,
+  "max_m": 150.0
+ },
+ {
+  "channel": 83,
+  "az_even": -2.94,
+  "az_odd": 0.54,
+  "elev": -0.6,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 31,
+  "az_even": -2.94,
+  "az_odd": -2.94,
+  "elev": -0.7,
+  "min_m": 0.5,
+  "max_m": 150.0
+ },
+ {
+  "channel": 84,
+  "az_even": -2.94,
+  "az_odd": 2.94,
+  "elev": -0.8,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 32,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -0.9,
+  "min_m": 0.5,
+  "max_m": 120.0
+ },
+ {
+  "channel": 85,
+  "az_even": -2.94,
+  "az_odd": 2.94,
+  "elev": -1.0,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 33,
+  "az_even": 2.94,
+  "az_odd": 2.94,
+  "elev": -1.1,
+  "min_m": 0.5,
+  "max_m": 120.0
+ },
+ {
+  "channel": 86,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": -1.2,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 34,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -1.3,
+  "min_m": 0.5,
+  "max_m": 90.0
+ },
+ {
+  "channel": 87,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": -1.4,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 35,
+  "az_even": 2.94,
+  "az_odd": 2.94,
+  "elev": -1.5,
+  "min_m": 0.5,
+  "max_m": 90.0
+ },
+ {
+  "channel": 88,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": -1.6,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 36,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -1.7,
+  "min_m": 0.5,
+  "max_m": 90.0
+ },
+ {
+  "channel": 89,
+  "az_even": -0.54,
+  "az_odd": 2.94,
+  "elev": -1.8,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 37,
+  "az_even": 2.94,
+  "az_odd": 2.94,
+  "elev": -1.9,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 90,
+  "az_even": -0.54,
+  "az_odd": 2.95,
+  "elev": -2.01,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 38,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -2.11,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 91,
+  "az_even": -0.54,
+  "az_odd": 2.95,
+  "elev": -2.21,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 39,
+  "az_even": 2.95,
+  "az_odd": 2.95,
+  "elev": -2.31,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 92,
+  "az_even": -2.95,
+  "az_odd": 2.95,
+  "elev": -2.41,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 40,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -2.51,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 93,
+  "az_even": -2.95,
+  "az_odd": 2.95,
+  "elev": -2.61,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 41,
+  "az_even": -2.95,
+  "az_odd": -2.95,
+  "elev": -2.71,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 94,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -2.81,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 42,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -2.91,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 95,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -3.01,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 43,
+  "az_even": -2.95,
+  "az_odd": -2.95,
+  "elev": -3.11,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 96,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -3.21,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 44,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -3.32,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 97,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -3.42,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 45,
+  "az_even": -2.95,
+  "az_odd": -2.95,
+  "elev": -3.52,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 98,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -3.62,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 46,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -3.72,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 99,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -3.82,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 47,
+  "az_even": -2.95,
+  "az_odd": -2.95,
+  "elev": -3.92,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 100,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -4.02,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 48,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -4.13,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 101,
+  "az_even": -2.95,
+  "az_odd": 0.54,
+  "elev": -4.33,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 49,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -4.53,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 102,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -4.73,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 50,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -4.93,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 103,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -5.13,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 51,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -5.33,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 104,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -5.53,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 52,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -5.73,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 105,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -5.93,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 53,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -6.12,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 106,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -6.32,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 54,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -6.52,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 107,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -6.72,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 55,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -6.92,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 108,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -7.12,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 56,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -7.32,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 109,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -7.51,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 57,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -7.7,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 110,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -7.9,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 58,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -8.1,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 111,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -8.31,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 59,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -8.51,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 112,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -8.71,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 60,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -8.9,
+  "min_m": 0.5,
+  "max_m": 60.0
+ },
+ {
+  "channel": 113,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -9.18,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 61,
+  "az_even": 0.54,
+  "az_odd": 0.54,
+  "elev": -9.46,
+  "min_m": 4.0,
+  "max_m": 60.0
+ },
+ {
+  "channel": 114,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -9.87,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 62,
+  "az_even": 0.53,
+  "az_odd": 0.53,
+  "elev": -10.27,
+  "min_m": 4.0,
+  "max_m": 60.0
+ },
+ {
+  "channel": 115,
+  "az_even": -0.54,
+  "az_odd": 0.54,
+  "elev": -10.75,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 63,
+  "az_even": -0.54,
+  "az_odd": -0.54,
+  "elev": -11.23,
+  "min_m": 4.0,
+  "max_m": 60.0
+ },
+ {
+  "channel": 116,
+  "az_even": -0.54,
+  "az_odd": 0.53,
+  "elev": -11.82,
+  "min_m": null,
+  "max_m": null
+ },
+ {
+  "channel": 64,
+  "az_even": -0.53,
+  "az_odd": -0.53,
+  "elev": -12.41,
+  "min_m": 4.0,
+  "max_m": 60.0
+ }
+]
