@@ -3,8 +3,9 @@
     /isaac-sim/python.sh assets/ATX_LiDAR/make_cone_frames.py --frames 20 --cones 60 --seed 0
 
 Per frame f it writes Outputs/cone_frames/frame_{f:04d}.pcd (same PCD layout as validate_atx.py) and
-frame_{f:04d}.json (cone type, x, y, yaw in the sensor/world frame, which share the origin). The sensor sits at
-(0, 0, --sensor-height) looking along +X; cones are drawn uniformly over the disc between --min-radius and --radius
+frame_{f:04d}.json (sensor pose plus one 3D box per cone: type, center [x, y, z], size [length, width, height], yaw_deg,
+all in the sensor frame: x forward, y left, z up, origin at the sensor, which is unrotated so yaw equals the world yaw).
+Box sizes are the cone USD's own bounding box. The sensor sits at (0, 0, --sensor-height) looking along +X; cones are drawn uniformly over the disc between --min-radius and --radius
 and kept --min-gap apart.
 
 Sweep capture follows validate_atx.py: warm-up frames are dropped, slices are merged by timestamp into one full
@@ -128,10 +129,16 @@ def scatter(rng):
         yaw = float(rng.uniform(0, 360))
         prim = stage.DefinePrim(f"/World/Cones/cone_{len(placed) - 1:04d}", "Xform")
         prim.GetReferences().AddReference(str(CONES / f"{kind}.usd"))
+        box = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_, UsdGeom.Tokens.render])
+        rng_ = box.ComputeUntransformedBound(prim).ComputeAlignedRange()  # cone's own frame, measured before the pose is added so yaw does not widen it
         xf = UsdGeom.Xformable(prim)
         xf.AddTranslateOp().Set(Gf.Vec3d(float(p[0]), float(p[1]), 0.0))
         xf.AddRotateZOp().Set(yaw)
-        labels.append({"type": kind, "x": float(p[0]), "y": float(p[1]), "yaw_deg": yaw})
+        lo, hi = np.array(rng_.GetMin()), np.array(rng_.GetMax())
+        mid, size = (lo + hi) / 2, hi - lo
+        c, s_ = np.cos(np.radians(yaw)), np.sin(np.radians(yaw))
+        center = [float(p[0] + c * mid[0] - s_ * mid[1]), float(p[1] + s_ * mid[0] + c * mid[1]), float(mid[2] - args.sensor_height)]
+        labels.append({"type": kind, "center": center, "size": [float(v) for v in size], "yaw_deg": yaw})
     while is_stage_loading():
         simulation_app.update()
     return labels
@@ -241,7 +248,11 @@ for i in range(args.frames):
         continue
     xyz, cols, t = result
     write_pcd(out_dir / f"frame_{idx:04d}.pcd", xyz, cols, t)
-    (out_dir / f"frame_{idx:04d}.json").write_text(json.dumps({"seed": args.seed, "cones": labels}, indent=1))
+    (out_dir / f"frame_{idx:04d}.json").write_text(json.dumps({
+        "seed": args.seed,
+        "frame": "sensor: x forward, y left, z up, origin at the sensor (box center z is relative to the sensor)",
+        "sensor": {"position_in_world": [0.0, 0.0, args.sensor_height], "yaw_deg": 0.0},
+        "boxes": labels}, indent=1))
     done += 1
     print(f"[cones] frame {idx}: {len(labels)} cones, {len(xyz)} points -> {out_dir}/frame_{idx:04d}.pcd", flush=True)
 
