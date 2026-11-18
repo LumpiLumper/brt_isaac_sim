@@ -17,3 +17,4 @@ class Cone:
     x: float
     y: float
     z: float
+    yaw_deg: float = 0.0

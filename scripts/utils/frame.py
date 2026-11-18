@@ -12,6 +12,8 @@ class Frame:
     data: np.ndarray                      # structured array, dtype=DTYPE
     cones: list[Cone] = field(default_factory=list)
     sensor_height: float = 0.0
+    seed: int = 0
+    idx: int = 0
 
     @property
     def xyz(self) -> np.ndarray:
