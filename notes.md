@@ -137,13 +137,87 @@ never mixes two cone layouts.
 - **Sensor modelling kept explicit** in the config (`model`, `usd_path`, `emitter_config_path`), so a run records
   which sensor it used.
 
-## 6. Open items
+## 6. The `get_data()` crash and how it was fixed
 
-- Fix the `SensorConfig.usd_path` default: it says `atx_lidar.usd`, the file is `ATX_LiDAR.usd`.
-- Decide whether to run the three checks in section 3 before relying on the custom assembly.
-- Cone box sizes come from two sources (`CONE_SIZES` and the USD bounding box in the old script); pick one.
-- Per-frame JSON still lacks the sensor pose and seed that the old script wrote.
-- Compare one real frame from the refactored pipeline with one from the current script (step 4 of the plan).
+**Symptom.** With the first version of the capture (polling `annotator.get_data()` of `IsaacCreateRTXLidarScanBuffer`
+after each `app.update()`), the Isaac worker segfaulted (exit 139) after a handful of frames. In a 100-frame run the
+supervisor needed 17 workers for 20 frames (frames per worker: 1, 0, 0, 5, 0, 3, 0, 2, 2, 0, 6, 1, 0, 0, 0, 0, 0) and
+gave up after 5 workers in a row that produced nothing. The README's "crashes after about 15-40 frames" was far too
+optimistic. **[observed]**
+
+**Measured baseline.** 32 single workers, capped at 40 frames each: every one crashed, 142 frames in total, about
+4.4 frames per worker. Healthy capture itself is fast (about 0.27 s per frame); start-up and crashes dominated the
+time. **[observed]**
+
+**Diagnosis.**
+1. The crash backtrace (breakpad) always showed a numpy `array.copy()` called from Python, but its frame names are
+   marked low-confidence and we call `.copy()` nowhere in our code.
+2. `faulthandler` did not help: Kit's crash handler takes the signal first.
+3. A line tracer (`sys.settrace` on our code and Isaac's annotator modules, writing the last executed line into an
+   `mmap` file, which survives a segfault) gave the same answer in 8 of 8 crashes:
+   `omni/replicator/core/scripts/utils/annotator_utils.py:519`, in `_get_data_from_ptr`, which is
+   `return array.copy(), False`. **[observed]**
+4. Reading that code: Isaac wraps the lidar node's raw output pointer in a zero-copy array
+   (`_reshape_output_ptr`) and then copies it. Pointer and element count are read separately, so when the node swaps
+   its buffer in between, the copy reads freed memory. This race is the most likely reading of the evidence; the
+   race itself was not observed directly. **[hypothesis, consistent with all 8 traces]**
+
+**What did not help** (8 interleaved workers per setting, same benchmark):
+
+| Setting | Mean frames before crash |
+|---|---|
+| baseline | 4.4 (32 workers) |
+| `enable_motion_bvh` on (Isaac logs "multi-tick is enabled but motion BVH is not active. This is not supported.") | 2.4 |
+| `get_data(do_array_copy=True)` | 5.5, i.e. no effect |
+
+`do_array_copy` could not matter: in `AnnotatorCache.get_data` the effective `do_copy` is `kwargs.get("do_copy") or
+params.get("do_array_copy")`, and the annotator-level default is already `True`, so the failing copy ran either way.
+
+**Fix.** Do not poll the annotator. Attach a Replicator **writer** with the `GenericModelOutput` annotator through
+the experimental API (`isaacsim.sensors.experimental.rtx`: `Lidar` wraps the existing ATX OmniLidar prim,
+`LidarSensor.attach_writer`) and copy what is needed *inside* the writer's `write()` callback, where the buffers are
+guaranteed valid. Isaac's own deprecation warning for the scan buffer says the same: "Use the GenericModelOutput
+annotator directly to access full-scan RTX Lidar data." Code: `scripts/isaac/sensor.py`, `scripts/lidar/gmo.py`.
+
+**Evidence for the fix.** Probe (our ATX scene, one worker, 600 render steps of about 100 scans): 5 of 5 workers
+finished with exit 0 and zero fatal log lines, against 0 of 32 for polling. **[observed]**
+Real pipeline (`scripts/generate_cone_frames.py --frames 100 --cones 50 --seed 0`, scene re-scattered every frame):
+**one worker produced all 100 frames, 0 restarts, 65.7 s in total** (start-up included), exit 0. The same command with
+the polling capture produced 20 frames from 17 workers in 405 s and then gave up. Frame quality matches the old
+pipeline: 44 858 to 47 365 points per frame (mean 45 406; the old runs gave about 45 000), sweep duration
+(`t` max) 0.0341 to 0.0343 s, 97 distinct point counts among 100 frames (so the frames are not repeats of one
+scan). **[observed]**
+
+**What the GMO data looks like** (probe, **[observed]**), needed to understand `lidar/gmo.py`:
+- Coordinates are spherical: `x` azimuth in degrees (positive to the left), `y` elevation in degrees, `z` range in
+  metres, `scalar` intensity. Cartesian xyz = r (cos el cos az, cos el sin az, sin el), which reproduces the xyz of
+  a PCD written by the old pipeline to 4e-6. Intensity has the same scale (about 0.005 to 2.5).
+- One write per render step (60 Hz). A 10 Hz scan arrives as: a lead-in of about 40 points, two slices of about
+  22 000 points (about 60 deg each), a tail of about 300 points, then steps with no returns. Together about 44 900
+  points, as before.
+- Absolute point time = write `timestampNs` + per-point `timeOffsetNs`. One sweep spans about 34 ms, exactly what the
+  old annotator reported. A new scan starts about 65 ms after the previous tail, so the 0.04 s gap rule still
+  separates sweeps.
+- The first writes after start-up are garbage (azimuth outside the window); the existing azimuth check rejects them.
+- The `scanComplete` flag does not mark the end of a window sweep in any way we could use (it is 0 only on the second
+  big slice), so the timestamp/bin completeness check in `lidar/sweep.py` stays. The assembler itself was reused
+  unchanged: `gmo_to_raw` produces the same slice dict the annotator used to.
+
+**Related pitfall found on the way.** Isaac puts a `cv2` folder containing a `config.py` on `sys.path` after
+`SimulationApp` starts, so a later `import config` can resolve to the wrong file. Our worker works only because
+`config` is imported before the app starts. The generic top-level names `config` and `utils` are a risk; rename them
+if this ever breaks.
+
+## 7. Open items
+
+- Fix the `SensorConfig.usd_path` default: it says `atx_lidar.usd`, the file is `ATX_LiDAR.usd`. (Done in code.)
+- Cone box sizes: now taken from the cone USD geometry (the old hand-typed 0.38 m big-cone width was wrong; the
+  geometry is 0.285 m). (Done.)
+- The three checks in section 3 are superseded by section 6; the sweep assembly is still needed (the GMO data is
+  still delivered per render step).
+- Rename the top-level modules `config` and `utils` to something Isaac cannot shadow.
+- A new section 4 caveat: the assembler now consumes GMO slices (via `lidar/gmo.py`) instead of `get_data()` results;
+  steps 1-6 of its logic are unchanged.
 
 ## Sources
 
