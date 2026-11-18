@@ -20,7 +20,7 @@ def resolve_path(p: Path) -> Path:
 @dataclass(frozen=True)
 class SensorConfig:
     model: str = "ATX"
-    usd_path: Path = Path("assets/ATX_LiDAR/atx_lidar.usd")
+    usd_path: Path = Path("assets/ATX_LiDAR/ATX_LiDAR.usd")
     emitter_config_path: Path = Path("assets/ATX_LiDAR/atx_emitter_config.json")
     height: float = 0.4
     x: float = 0.0
@@ -57,6 +57,7 @@ class PlacementConfig:
 class CaptureConfig:
     settle: int = 6       # render steps to wait after moving cones before reading
     max_steps: int = 120  # render steps to wait for a complete sweep per frame
+    warmup_steps: int = 9  # render steps after the first play(), while the pipeline fills and buffers hold garbage
 
 
 @dataclass(frozen=True)
@@ -69,6 +70,7 @@ class RunConfig:
     start_frame: int = 0
     out_root: Path = Path("Outputs")  # each run gets its own timestamped folder in here
     run_dir: Path | None = None
+    cones_dir: Path = Path("assets/cones")  # the cone usd files (repo-relative, see resolve_path)
 
 
 def to_dict(cfg: RunConfig) -> dict:
@@ -109,7 +111,7 @@ def from_dict(d: dict) -> RunConfig:
     d = dict(d)
     sections = {"sensor": SensorConfig, "placement": PlacementConfig, "capture": CaptureConfig}
     kwargs = {name: _section(cls, d.pop(name, {})) for name, cls in sections.items()}
-    for key in ("out_root", "run_dir"):
+    for key in ("out_root", "run_dir", "cones_dir"):
         if d.get(key) is not None:
             d[key] = Path(d[key])
     top = {f.name for f in dataclasses.fields(RunConfig)} - set(sections)
@@ -140,6 +142,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--start-frame", type=int)
     p.add_argument("--out-root", type=Path, help="folder that holds the timestamped run folders")
     p.add_argument("--run-dir", type=Path, help="reuse this run folder (resume) instead of creating a new one")
+    p.add_argument("--cones-dir", type=Path, help="folder with the cone usd files")
     p.add_argument("--sensor-height", type=float)
     p.add_argument("--placement", help="placement algorithm name")
     p.add_argument("--cones", type=int, help="cones per frame")
@@ -149,13 +152,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--placement-param", action="append", default=[], type=_parse_param, metavar="KEY=VALUE")
     p.add_argument("--settle", type=int)
     p.add_argument("--max-steps", type=int)
+    p.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)  # set by the supervisor on its children
     return p
 
 
 # CLI flag (argparse dest) -> (section, config field); section None means top level.
 _FLAGS = {
     "frames": (None, "frames"), "seed": (None, "seed"), "start_frame": (None, "start_frame"),
-    "out_root": (None, "out_root"), "run_dir": (None, "run_dir"),
+    "out_root": (None, "out_root"), "run_dir": (None, "run_dir"), "cones_dir": (None, "cones_dir"),
     "sensor_height": ("sensor", "height"),
     "placement": ("placement", "algorithm"), "cones": ("placement", "num_cones"),
     "radius": ("placement", "radius"), "min_radius": ("placement", "min_radius"),
@@ -172,6 +176,11 @@ def load_config_file(path: Path) -> dict:
 
 
 def parse_config(argv: list[str] | None = None) -> RunConfig:
+    return parse_cli(argv)[0]
+
+
+def parse_cli(argv: list[str] | None = None) -> tuple[RunConfig, bool]:
+    """The config plus whether this process is a supervisor-launched worker."""
     ns = build_parser().parse_args(argv)
     d = load_config_file(ns.config) if ns.config else {}
     for dest, (section, name) in _FLAGS.items():
@@ -182,4 +191,4 @@ def parse_config(argv: list[str] | None = None) -> RunConfig:
         target[name] = value
     if ns.placement_param:
         d.setdefault("placement", {}).setdefault("params", {}).update(dict(ns.placement_param))
-    return from_dict(d)
+    return from_dict(d), ns.worker

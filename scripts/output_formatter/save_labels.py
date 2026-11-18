@@ -2,32 +2,25 @@
 import json
 from pathlib import Path
 
-from utils.cone import ConeType
+from scene.cone_assets import CONE_NAMES, ConeSizes
+from utils.cone import Cone
+from utils.frame import Frame
 
-CONE_LABELS = {
-    ConeType.SMALL_BLUE: "Small_Cone_Blue",
-    ConeType.SMALL_YELLOW: "Small_Cone_Yellow",
-    ConeType.SMALL_ORANGE: "Small_Cone_Orange",
-    ConeType.BIG_ORANGE: "Big_Orange_Cone",
-}
+FRAME_DESCRIPTION = ("sensor: x forward, y left, z up, origin at the sensor, unrotated "
+                     "(box center z is relative to the sensor, yaw_deg is the cone's yaw)")
 
-CONE_SIZES = {
-    "Small_Cone_Blue": (0.24, 0.24, 0.325),
-    "Small_Cone_Yellow": (0.24, 0.24, 0.325),
-    "Small_Cone_Orange": (0.24, 0.24, 0.325),
-    "Big_Orange_Cone": (0.38, 0.38, 0.505),
-}
+def make_label(cone: Cone, size, sensor_height: float):
+    """Box label for one cone. cone.x/y are relative to the sensor, cone.z is the base height above the ground."""
+    return {
+        "type": CONE_NAMES[cone.type],
+        "center": [float(cone.x), float(cone.y), float(cone.z) + size[2] / 2 - sensor_height],
+        "size": [float(v) for v in size],
+        "yaw_deg": float(cone.yaw_deg),
+    }
 
-def make_label(cone_type, xyz):
-    """Box label for one cone given its type and the xyz of its base."""
-    if cone_type not in CONE_SIZES:
-        raise KeyError(f"unknown cone type {cone_type!r}; known: {sorted(CONE_SIZES)}")
-    x, y, z = (float(v) for v in xyz)
-    size = CONE_SIZES[cone_type]
-    return {"type": cone_type, "center": [x, y, z + size[2] / 2], "size": list(size), "yaw_deg": 0.0}
-
-def save_labels(path, cones):
-    boxes = [make_label(CONE_LABELS[c.type], (c.x, c.y, c.z)) for c in cones]
-    doc = {"frame": "sensor: x forward, y left, z up, origin at the sensor", "boxes": boxes}
+def save_labels(path, frame: Frame, cone_sizes: ConeSizes):
+    boxes = [make_label(c, cone_sizes[c.type], frame.sensor_height) for c in frame.cones]
+    doc = {"seed": frame.seed, "frame_index": frame.idx, "frame": FRAME_DESCRIPTION,
+           "sensor_height": frame.sensor_height, "boxes": boxes}
     Path(path).write_text(json.dumps(doc, indent=1))
     return boxes

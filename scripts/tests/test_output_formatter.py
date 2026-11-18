@@ -5,9 +5,13 @@ import pytest
 
 from utils.cone import Cone, ConeType
 from utils.frame import DTYPE, Frame
-from save_as_pcd import write_pcd
-from save_labels import CONE_LABELS, CONE_SIZES, make_label, save_labels
-from save_frame import save_frame
+from output_formatter.save_as_pcd import write_pcd
+from output_formatter.save_labels import make_label, save_labels
+from output_formatter.save_frame import save_frame
+from scene.cone_assets import CONE_NAMES
+
+SIZES = {t: (0.2, 0.2, 0.3) for t in ConeType}
+SIZES[ConeType.BIG_ORANGE] = (0.3, 0.3, 0.5)
 
 
 def make_data(n=3):
@@ -71,40 +75,37 @@ def test_pcd_casts_other_dtypes_to_float32(tmp_path):
 
 # --- make_label / save_labels ---------------------------------------------
 
-def test_make_label_centers_box_on_cone_height():
-    label = make_label("Small_Cone_Blue", (1, 2, 0.5))
-    h = CONE_SIZES["Small_Cone_Blue"][2]
+def test_make_label_centers_box_on_cone_height_in_the_sensor_frame():
+    label = make_label(Cone(ConeType.SMALL_BLUE, 1, 2, 0.0, yaw_deg=30.0), SIZES[ConeType.SMALL_BLUE], sensor_height=0.4)
 
     assert label["type"] == "Small_Cone_Blue"
-    assert label["center"] == pytest.approx([1, 2, 0.5 + h / 2])
-    assert label["size"] == list(CONE_SIZES["Small_Cone_Blue"])
-    assert label["yaw_deg"] == 0.0
+    assert label["center"] == pytest.approx([1, 2, 0.15 - 0.4])  # base at the ground, centre z relative to the sensor
+    assert label["size"] == [0.2, 0.2, 0.3]
+    assert label["yaw_deg"] == 30.0
 
 
-def test_make_label_accepts_numpy_xyz_and_returns_plain_floats():
-    label = make_label("Big_Orange_Cone", np.array([1.0, 2.0, 3.0], dtype=np.float32))
+def test_make_label_returns_plain_floats():
+    cone = Cone(ConeType.BIG_ORANGE, np.float32(1.0), np.float32(2.0), np.float32(0.0), np.float32(10.0))
+    label = make_label(cone, SIZES[ConeType.BIG_ORANGE], 0.4)
     json.dumps(label)  # numpy scalars would raise TypeError
-    assert all(type(v) is float for v in label["center"])
-
-
-def test_make_label_unknown_type():
-    with pytest.raises(KeyError, match="unknown cone type"):
-        make_label("Purple_Cone", (0, 0, 0))
 
 
 def test_save_labels_writes_json(tmp_path):
     out = tmp_path / "labels.json"
-    boxes = save_labels(out, [Cone(ConeType.SMALL_BLUE, 0, 0, 0), Cone(ConeType.BIG_ORANGE, 1, 1, 0)])
+    frame = Frame(make_data(1), [Cone(ConeType.SMALL_BLUE, 0, 0, 0), Cone(ConeType.BIG_ORANGE, 1, 1, 0)],
+                  sensor_height=0.4, seed=7, idx=3)
+    boxes = save_labels(out, frame, SIZES)
     doc = json.loads(out.read_text())
 
     assert doc["boxes"] == boxes
     assert [b["type"] for b in doc["boxes"]] == ["Small_Cone_Blue", "Big_Orange_Cone"]
+    assert (doc["seed"], doc["frame_index"], doc["sensor_height"]) == (7, 3, 0.4)
     assert "frame" in doc
 
 
 def test_save_labels_no_cones(tmp_path):
     out = tmp_path / "labels.json"
-    save_labels(out, [])
+    save_labels(out, Frame(make_data(1)), SIZES)
     assert json.loads(out.read_text())["boxes"] == []
 
 
@@ -112,13 +113,12 @@ def test_save_labels_no_cones(tmp_path):
 
 def test_save_frame_writes_pcd_and_labels_to_separate_files(tmp_path):
     frame = Frame(make_data(2), [Cone(ConeType.SMALL_BLUE, 1.0, 2.0, 0.0)])
-    save_frame(frame, tmp_path / "scan")
+    save_frame(frame, tmp_path / "scan", SIZES)
 
     assert {p.name for p in tmp_path.iterdir()} == {"scan.pcd", "scan.json"}
     boxes = json.loads((tmp_path / "scan.json").read_text())["boxes"]
     assert [b["type"] for b in boxes] == ["Small_Cone_Blue"]
 
 
-def test_every_cone_type_has_label_and_size():
-    for cone_type in ConeType:
-        assert CONE_LABELS[cone_type] in CONE_SIZES
+def test_every_cone_type_has_a_name():
+    assert set(CONE_NAMES) == set(ConeType)

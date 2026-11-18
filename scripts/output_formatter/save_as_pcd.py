@@ -1,5 +1,5 @@
 
-from utils.frame import Frame, DTYPE
+from utils.frame import DTYPE, Frame
 
 def write_pcd(path, frame: Frame):
     names = DTYPE.names
