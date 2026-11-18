@@ -31,7 +31,7 @@ def run_worker(cfg):
     from isaacsim.core.utils.stage import is_stage_loading, open_stage
 
     from isaac.sensor import LidarCapture
-    from isaac.stage import SENSOR_PRIM, apply_layout, build_scene_file
+    from isaac.stage import SENSOR_PRIM, apply_ground_material, apply_layout, build_scene_file
     from lidar.atx import load_sweep_spec
     from lidar.sweep import to_frame
     from output_formatter.save_frame import save_frame
@@ -54,6 +54,7 @@ def run_worker(cfg):
     open_stage(str(scene_path))
     wait_loaded()
     stage = omni.usd.get_context().get_stage()
+    apply_ground_material(stage, cfg.ground_base, cfg.ground_coating)  # on the open stage: see its docstring
 
     capture = LidarCapture(SENSOR_PRIM, spec, cfg.capture)
     capture.start()

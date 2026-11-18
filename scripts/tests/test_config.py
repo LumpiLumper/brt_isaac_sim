@@ -62,3 +62,16 @@ def test_unknown_keys_rejected():
 def test_unknown_cone_type_name_rejected():
     with pytest.raises(KeyError):
         from_dict({"placement": {"cone_types": ["PURPLE"]}})
+
+
+def test_ground_material_defaults_to_asphalt_and_can_be_changed():
+    assert (parse_config([]).ground_base, parse_config([]).ground_coating) == ("asphalt", "none")
+    cfg = parse_config(["--ground-base", "concrete", "--ground-coating", "paint"])
+    assert (cfg.ground_base, cfg.ground_coating) == ("concrete", "paint")
+    assert parse_config(["--ground-base", "none"]).ground_base == "none"  # the old, nearly invisible ground
+
+
+@pytest.mark.parametrize("flags", [["--ground-base", "asphalte"], ["--ground-coating", "glossy"]])
+def test_unknown_ground_material_is_rejected(flags):
+    with pytest.raises(ValueError, match="unknown ground_"):
+        parse_config(flags)

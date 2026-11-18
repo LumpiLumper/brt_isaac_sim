@@ -208,7 +208,54 @@ scan). **[observed]**
 `config` is imported before the app starts. The generic top-level names `config` and `utils` are a risk; rename them
 if this ever breaks.
 
-## 7. Open items
+## 7. Missing far ground returns, and the ground material
+
+**Symptom.** In a point-cloud viewer the ground showed only as rings out to about 10 to 12 m; beyond that only the
+cones were visible. Frame data agreed (sensor height 0.4 m): 40 884 ground points within 6 m, 3 297 between 6 and
+12 m, none between 12 and 30 m. **[observed]**
+
+**It is not a geometric or range limit.** The ATX has about 20 channels between -2 and 0 deg, which would hit flat
+ground at 11 to 229 m (`height / tan(elevation)`), and every channel range group reaches at least 60 m. The rays hit;
+the returns were not delivered. Ground intensity fell from 0.0082 (0 to 6 m) to 0.0056 (6 to 12 m), toward the lowest
+intensity seen anywhere (0.0052), which is consistent with a detection floor on weak grazing returns. **[observed;
+the threshold itself is a hypothesis, no intensity or sensitivity attribute exists on the ATX prim]**
+
+**Cause: the ground had no non-visual material.** RTX sensors read a surface's strength from its *non-visual
+material* (`isaacsim.core.experimental.materials.NonVisualMaterial`: a base such as asphalt or concrete, a coating,
+and attributes), independent of how it looks. Our ground slab had none. Empty scene, ATX at 0.4 m, ground material
+varied (one fresh Isaac process each): **[observed]**
+
+| Ground material | Max ground distance | Points per frame | Points beyond 12 m |
+|---|---|---|---|
+| none (previous behaviour) | 9.1 m | 44 715 | 0 |
+| asphalt, concrete, dirt, steel, aluminum+paint | 114.7 m | about 96 500 | about 26 000 |
+| retroreflective attribute (unrealistic upper bound) | 114.7 m | 96 557 | 26 147 |
+| `calibration_lambertion`, `emissive` | 9.1 m | 44 715 | 0 (no effect) |
+
+With any real material the cutoff disappears: 114.7 m is just the edge of the ground slab (the lowest channel with
+ground returns, -0.2 deg, would hit at 114.6 m). The material changes the intensity values only modestly (mean
+0.0232 concrete, 0.0239 asphalt, 0.0265 dirt, 0.0290 steel).
+
+**Pitfall: the material must be applied to the OPEN stage.** Authored into the scene file (as plain USD attributes
+plus a material binding) it has no effect: 44 711 points and 9.1 m, identical to no material. Applied the same way
+after the stage is open and the app is running, with plain `pxr` or with Isaac's own API, it works (96 557 points,
+114.7 m). Why the renderer ignores a material present at load was not investigated. Code:
+`apply_ground_material()` in `scripts/isaac/stage.py`, called by the worker after `open_stage`.
+
+**Decision.** Default `ground_base = "asphalt"` (cone tracks are normally on asphalt), `ground_coating = "none"`,
+settable with `--ground-base` / `--ground-coating`; `--ground-base none` reproduces the old, nearly invisible ground.
+Both values are stored in `metadata.json`, so a run says which ground it used. Real pipeline check (`--frames 10
+--cones 50`): about 96 600 points per frame, ground out to 114.7 m, sweep duration unchanged (0.0341 s). **[observed]**
+
+**Consequences and caveats.**
+- Frames have about twice as many points (a PCD grows from about 1.4 MB to about 2.7 MB), so a 1000-frame dataset is
+  about 2.7 GB of PCD.
+- Datasets made before this change (the 100-frame run of section 6) have the cut-off ground and no ground material in
+  their metadata.
+- The simulated ground is now a full-range surface at every distance. Whether a real ATX at 0.4 m height sees the
+  ground that far was not checked against real data; asphalt is a plausible choice, not a calibrated one.
+
+## 8. Open items
 
 - Fix the `SensorConfig.usd_path` default: it says `atx_lidar.usd`, the file is `ATX_LiDAR.usd`. (Done in code.)
 - Cone box sizes: now taken from the cone USD geometry (the old hand-typed 0.38 m big-cone width was wrong; the

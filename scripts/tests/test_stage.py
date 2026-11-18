@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
-from pxr import Gf, Usd, UsdGeom
+from pxr import Gf, Usd, UsdGeom, UsdShade
 
 from config import SensorConfig, resolve_path
-from isaac.stage import CONES_ROOT, apply_layout, build_scene_file
+from isaac.stage import CONES_ROOT, apply_ground_material, apply_layout, build_scene_file
 from scene.cone_assets import CONE_NAMES, cone_usd_path, measure_cone_sizes
 from utils.cone import Cone, ConeType
 
@@ -108,3 +108,29 @@ def test_apply_layout_replaces_the_previous_layout_and_keeps_the_pose(scene):
     assert [c.GetName() for c in root.GetChildren()] == ["cone_0000"]
     assert world_yaw_deg(root) == pytest.approx(45.0)
     assert world_pos(root) == pytest.approx([1.0, 0.0, 0.0])
+
+
+# --- ground material -------------------------------------------------------
+
+def nonvisual(stage, name):
+    return stage.GetPrimAtPath("/World/Looks/GroundNonVisual").GetAttribute(f"omni:simready:nonvisual:{name}").Get()
+
+
+def test_ground_gets_a_bound_nonvisual_material(scene):
+    stage = scene()
+    apply_ground_material(stage, "asphalt", "paint")
+
+    assert (nonvisual(stage, "base"), nonvisual(stage, "coating"), nonvisual(stage, "attributes")) == ("asphalt", "paint", "none")
+    bound = UsdShade.MaterialBindingAPI(stage.GetPrimAtPath("/World/Ground")).ComputeBoundMaterial()[0]
+    assert bound.GetPath() == "/World/Looks/GroundNonVisual"
+
+
+def test_scene_file_has_no_ground_material(scene):
+    """Isaac ignores a non-visual material present at load, so the file must not carry one."""
+    assert not scene().GetPrimAtPath("/World/Looks")
+
+
+def test_none_leaves_the_ground_bare(scene):
+    stage = scene()
+    apply_ground_material(stage, "none", "none")
+    assert not stage.GetPrimAtPath("/World/Looks")

@@ -10,7 +10,7 @@ sensor (x forward, y left), whatever the sensor's own position and yaw in the wo
 from pathlib import Path
 from typing import Callable
 
-from pxr import Gf, Usd, UsdGeom
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdShade
 
 from config import SensorConfig
 from scene.cone_assets import cone_usd_path
@@ -18,6 +18,9 @@ from utils.cone import Cone
 
 SENSOR_PRIM = "/World/ATX/sensor"  # the OmniLidar prim inside ATX_LiDAR.usd
 CONES_ROOT = "/World/Cones"
+GROUND_PRIM = "/World/Ground"
+GROUND_MATERIAL = "/World/Looks/GroundNonVisual"
+NONVISUAL_PREFIX = "omni:simready:nonvisual"  # carb setting /rtx/materialDb/nonVisualMaterialSemantics/prefix, Isaac 6.0.1
 
 
 def _place(prim, x: float, y: float, z: float, yaw_deg: float) -> None:
@@ -26,15 +29,37 @@ def _place(prim, x: float, y: float, z: float, yaw_deg: float) -> None:
     xf.AddRotateZOp().Set(float(yaw_deg))
 
 
+def apply_ground_material(stage: Usd.Stage, base: str, coating: str) -> None:
+    """Give the ground a non-visual material: what RTX sensors "feel" of the surface, independent of its looks.
+
+    Call it on the OPEN stage of the running app. Found by experiment (Isaac Sim 6.0.1): the same material authored
+    into the scene file is ignored by the renderer, applied to the open stage it is picked up. Without any material
+    the ground returns almost nothing at grazing angles, which cut it off beyond ~10 m at a sensor height of 0.4 m.
+
+    This is what Isaac's NonVisualMaterial + apply_visual_materials() write: a Material prim with three string
+    attributes (base, coating, attributes) that the ground prim is bound to. "none" for both leaves the ground bare.
+    """
+    if (base, coating) == ("none", "none"):
+        return
+    UsdGeom.Scope.Define(stage, "/World/Looks")
+    material = UsdShade.Material.Define(stage, GROUND_MATERIAL)
+    for name, value in (("base", base), ("coating", coating), ("attributes", "none")):
+        material.GetPrim().CreateAttribute(f"{NONVISUAL_PREFIX}:{name}", Sdf.ValueTypeNames.String, custom=True).Set(value)
+    UsdShade.MaterialBindingAPI.Apply(stage.GetPrimAtPath(GROUND_PRIM)).Bind(material)
+
+
 def build_scene_file(path: Path, sensor: SensorConfig, radius: float, atx_usd: Path) -> None:
-    """Write the scene with an empty /World/Cones. Ground is a flat slab: 1 m thick, top face at z = 0."""
+    """Write the scene with an empty /World/Cones. Ground is a flat slab: 1 m thick, top face at z = 0.
+
+    The ground's lidar material is not authored here, see apply_ground_material().
+    """
     stage = Usd.Stage.CreateNew(str(path))
     UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.z)
     UsdGeom.SetStageMetersPerUnit(stage, 1.0)
     world = UsdGeom.Xform.Define(stage, "/World")
     stage.SetDefaultPrim(world.GetPrim())
 
-    ground = UsdGeom.Cube.Define(stage, "/World/Ground")
+    ground = UsdGeom.Cube.Define(stage, GROUND_PRIM)
     ground.GetSizeAttr().Set(1.0)
     gx = UsdGeom.Xformable(ground)
     gx.AddTranslateOp().Set(Gf.Vec3d(0, 0, -0.5))

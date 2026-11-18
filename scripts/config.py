@@ -11,6 +11,17 @@ from utils.cone import ConeType
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+# Isaac Sim 6.0.1 non-visual material names (isaacsim.core.experimental.materials, data/specifications/*.csv)
+NONVISUAL_BASES = (
+    "none", "aluminum", "steel", "oxidized_steel", "iron", "oxidized_iron", "silver", "brass", "bronze",
+    "oxidized_Bronze_Patina", "tin", "plastic", "fiberglass", "carbon_fiber", "vinyl", "plexiglass", "pvc", "nylon",
+    "polyester", "clear_glass", "frosted_glass", "one_way_mirror", "mirror", "ceramic_glass", "asphalt", "concrete",
+    "leaf_grass", "dead_leaf_grass", "rubber", "wood", "bark", "cardboard", "paper", "fabric", "skin", "fur_hair",
+    "leather", "marble", "brick", "stone", "gravel", "dirt", "mud", "water", "salt_water", "snow", "ice",
+    "calibration_lambertion",
+)
+NONVISUAL_COATINGS = ("none", "paint", "clearcoat", "paint_clearcoat")
+
 
 def resolve_path(p: Path) -> Path:
     """Config paths are repo-relative so saved configs replay on another machine; absolute paths pass through."""
@@ -71,6 +82,17 @@ class RunConfig:
     out_root: Path = Path("Outputs")  # each run gets its own timestamped folder in here
     run_dir: Path | None = None
     cones_dir: Path = Path("assets/cones")  # the cone usd files (repo-relative, see resolve_path)
+    # Non-visual material of the ground, which decides how strongly the lidar sees it. With "none" the ground returns
+    # almost nothing at grazing angles: with the sensor at 0.4 m the ground vanished beyond ~10 m, while any real
+    # material gives ground returns out to the edge of the ground slab (see notes.md, "Missing far ground returns").
+    ground_base: str = "asphalt"
+    ground_coating: str = "none"
+
+    def __post_init__(self):
+        if self.ground_base not in NONVISUAL_BASES:
+            raise ValueError(f"unknown ground_base {self.ground_base!r}; known: {', '.join(NONVISUAL_BASES)}")
+        if self.ground_coating not in NONVISUAL_COATINGS:
+            raise ValueError(f"unknown ground_coating {self.ground_coating!r}; known: {', '.join(NONVISUAL_COATINGS)}")
 
 
 def to_dict(cfg: RunConfig) -> dict:
@@ -143,6 +165,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out-root", type=Path, help="folder that holds the timestamped run folders")
     p.add_argument("--run-dir", type=Path, help="reuse this run folder (resume) instead of creating a new one")
     p.add_argument("--cones-dir", type=Path, help="folder with the cone usd files")
+    p.add_argument("--ground-base", help="non-visual material of the ground, e.g. asphalt, concrete, dirt or none")
+    p.add_argument("--ground-coating", help="coating of the ground material: none, paint, clearcoat, paint_clearcoat")
     p.add_argument("--sensor-height", type=float)
     p.add_argument("--placement", help="placement algorithm name")
     p.add_argument("--cones", type=int, help="cones per frame")
@@ -160,6 +184,7 @@ def build_parser() -> argparse.ArgumentParser:
 _FLAGS = {
     "frames": (None, "frames"), "seed": (None, "seed"), "start_frame": (None, "start_frame"),
     "out_root": (None, "out_root"), "run_dir": (None, "run_dir"), "cones_dir": (None, "cones_dir"),
+    "ground_base": (None, "ground_base"), "ground_coating": (None, "ground_coating"),
     "sensor_height": ("sensor", "height"),
     "placement": ("placement", "algorithm"), "cones": ("placement", "num_cones"),
     "radius": ("placement", "radius"), "min_radius": ("placement", "min_radius"),
